@@ -4,9 +4,9 @@ import bcrypt from 'bcryptjs';
 import { Decimal } from '@prisma/client/runtime/library'; // For handling Decimal type correctly
 // import { PrismaClient } from "@prisma/client";
 import prisma from "../../db/lib/singleton"
-import { Prisma } from '@prisma/client';
-
+const prismaInstance = prisma;
 const SALT_ROUNDS = 10; // Number of salt rounds for bcrypt hashing
+const INITIAL_ACCOUNT_BALANCE = new Decimal(10000000.00); // $1,000,000.00 initial balance
 
 export async function POST(req: NextRequest) { // Using NextRequest for more specific typing
   try {
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) { // Using NextRequest for more spe
     // --- Hash password ---
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
-    const newUser = await prisma.$transaction(async (tx:Prisma.TransactionClient) => { 
+    const newUser = await prisma.$transaction(async (tx:any) => { 
       const user = await tx.user.create({
         data: {
           email,
@@ -91,50 +91,36 @@ export async function POST(req: NextRequest) { // Using NextRequest for more spe
 
     // --- Successful Response ---
     // Exclude password from the returned user object for security
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...userWithoutPassword } = newUser;
-
 
     return NextResponse.json({
       message: 'Account created successfully!',
       user: userWithoutPassword,
     }, { status: 201 }); // 201 Created
 
-  } 
-  catch (error: unknown) {
-  console.error('REGISTER ERROR:', error);
+  } catch (error: any) {
+    console.error('REGISTER ERROR:', error);
 
-  if (typeof error === 'object' && error !== null) {
-    // Handle known Prisma errors (e.g., unique constraints)
-    if ('code' in error && error.code === 'P2002') {
-      const target = (error as any).meta?.target as string[] | undefined;
-      if (target && target.includes('email')) {
-        return NextResponse.json({ error: 'User with this email already exists.' }, { status: 409 });
+    // --- Error Handling ---
+    if (error) {
+      // Handle known Prisma errors (e.g., unique constraints)
+      if (error.code === 'P2002') { // Unique constraint failed
+        // This can happen if the email check has a race condition or another unique field fails
+        const target = error.meta?.target as string[] | undefined;
+        if (target && target.includes('email')) {
+            return NextResponse.json({ error: 'User with this email already exists.' }, { status: 409 });
+        }
+        return NextResponse.json({ error: 'A database constraint was violated.', details: `Field(s): ${target?.join(', ')}` }, { status: 409 });
       }
-      return NextResponse.json({
-        error: 'A database constraint was violated.',
-        details: `Field(s): ${target?.join(', ')}`,
-      }, { status: 409 });
+      // Log other Prisma errors for server-side debugging
+      return NextResponse.json({ error: 'Database error during registration.', details: error.message }, { status: 500 });
+    } else if (error.name === 'SyntaxError' && error.message.includes('JSON')) {
+      // Handle JSON parsing errors from req.json()
+      return NextResponse.json({ error: 'Invalid request format. Malformed JSON.' }, { status: 400 });
     }
 
-    // If it's a standard Error object
-    if ('message' in error) {
-      return NextResponse.json({
-        error: 'Database error during registration.',
-        details: (error as Error).message,
-      }, { status: 500 });
-    }
+    // Generic error for other unexpected issues
+    return NextResponse.json({ error: 'An unexpected error occurred during registration.', details: error.message || 'No additional details available.' }, { status: 500 });
   }
 
-  // Handle JSON parsing errors separately
-  if (error instanceof SyntaxError && 'message' in error && error.message.includes('JSON')) {
-    return NextResponse.json({ error: 'Invalid request format. Malformed JSON.' }, { status: 400 });
-  }
-
-  // Fallback error
-  return NextResponse.json({
-    error: 'An unexpected error occurred during registration.',
-    details: error instanceof Error ? error.message : 'No additional details available.',
-  }, { status: 500 });
-}
 }
