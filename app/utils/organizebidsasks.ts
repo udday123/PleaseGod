@@ -20,7 +20,7 @@ export default function organize(bids:Entry[],asks:Entry[]):OrderbookData {
       const prefixquantity_asks: Entry[] = [];
 
       let totalBids = 0;
-      for (let bid of bids) {
+      for (const bid of bids) {
         const quantity = parseFloat(bid.quantity);
         totalBids += quantity;
         prefixquantity_bids.push({
@@ -31,7 +31,7 @@ export default function organize(bids:Entry[],asks:Entry[]):OrderbookData {
       }
     
       let totalAsks = 0;
-      for (let ask of asks) {
+      for (const ask of asks) {
         const quantity = parseFloat(ask.quantity);
         totalAsks += quantity;
         prefixquantity_asks.push({

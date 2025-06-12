@@ -1,6 +1,6 @@
 "use client"
 import React, { useEffect, useState } from 'react'
-import { getTickers,getTicker } from '../utils/httpClient'
+import { getTicker } from '../utils/httpClient'
 import { Ticker } from '../utils/types';
 
 export default function Popular() {

@@ -1,15 +1,42 @@
-"use client"; // This component uses client-side hooks
+import { useSession, signIn } from "next-auth/react";
+import { useState, useEffect } from "react";
+import { FaSpinner } from "react-icons/fa";
 
-import React, { useState, useEffect } from 'react';
-import { useSession, signIn } from 'next-auth/react';
-import { FaSpinner } from 'react-icons/fa';
+// Define interfaces for your order and position data
+interface Order {
+  orderId: string;
+  market: string;
+  side: 'BUY' | 'SELL';
+  orderType: string;
+  price?: number;
+  quantity?: number;
+  filledQuantity?: number;
+  unfilledQuantity?: number;
+  averagePrice?: number;
+  status: 'Open' | 'Filled' | 'Partially Filled' | 'Canceled';
+  timestamp: string;
+}
 
+interface Position {
+  id: string;
+  market: string;
+  side: 'LONG' | 'SHORT';
+  entryPrice: number;
+  exitPrice: number;
+  size: number;
+  pnl: number;
+  roe: number;
+  openTime: string;
+  closeTime: string;
+}
+
+// Then, update your state variable types to use these interfaces
 export const HistorySection = () => {
   const [activeTab, setActiveTab] = useState('openOrders');
-  const [openOrders, setOpenOrders] = useState<any[]>([]);
-  const [filledOrders, setFilledOrders] = useState<any[]>([]);
-  const [orderHistory, setOrderHistory] = useState<any[]>([]);
-  const [positionHistory, setPositionHistory] = useState<any[]>([]); // Placeholder for future use
+  const [openOrders, setOpenOrders] = useState<Order[]>([]);
+  const [filledOrders, setFilledOrders] = useState<Order[]>([]);
+  const [orderHistory, setOrderHistory] = useState<Order[]>([]);
+  const [positionHistory, setPositionHistory] = useState<Position[]>([]); // Placeholder for future use
 
   const { data: session, status } = useSession();
   const isAuthenticated = status === "authenticated";

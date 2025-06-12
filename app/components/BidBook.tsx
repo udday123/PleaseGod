@@ -1,8 +1,7 @@
-import { useState } from "react";
 
 export default function BidTable({ bids }: { bids: [string, string][] }) {
   // Clone and process bids
-  let sortedBids = [...bids];
+  const sortedBids = [...bids];
   let runningQuantity = 0;
 
   // Convert bid data to numerical format and calculate cumulative quantities

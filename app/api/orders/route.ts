@@ -1,9 +1,8 @@
-// app/api/orders/route.ts
 import { getServerSession } from "next-auth";
-import { NextRequest, NextResponse } from "next/server";
-import { authOptions } from "../auth/[...nextauth]/route"; // Adjust path if needed
+import { NextResponse } from "next/server";
+import { authOptions } from "../auth/authOptions";
 import prisma from "../../db/lib/singleton";
-import { Trade } from "@prisma/client";
+import { Prisma, Trade } from "@prisma/client";
 
 export async function GET(request: Request) {
   try {
@@ -16,30 +15,26 @@ export async function GET(request: Request) {
     // 2. Get query parameters
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
-    const userId = searchParams.get("userId");
+    const userId = searchParams.get("userId"); // Optional override
 
-    console.log('Fetching orders with params:', { status, userId });
+    console.log("Fetching orders with params:", { status, userId });
 
     // 3. Build query
-    const query: any = {
+    const query: Prisma.TradeFindManyArgs = {
       where: {
-        userId: session.user.id,
+        userId: userId || session.user.id,
+        ...(status ? { status } : {}),
       },
       orderBy: {
         timestamp: "desc",
       },
     };
 
-    // Add status filter if provided
-    if (status) {
-      query.where.status = status;
-    }
-
-    // 4. Fetch Orders from Database using Prisma
+    // 4. Fetch Orders
     const orders = await prisma.trade.findMany(query);
-    console.log('Found orders:', orders.length);
+    console.log("Found orders:", orders.length);
 
-    // 5. Format the response
+    // 5. Format Response
     const formattedOrders = orders.map((order: Trade) => ({
       orderId: order.orderId,
       market: order.market,
@@ -56,12 +51,15 @@ export async function GET(request: Request) {
       side: order.side,
     }));
 
-    console.log('Returning formatted orders:', formattedOrders.length);
     return NextResponse.json(formattedOrders);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error fetching orders:", error);
+
     return NextResponse.json(
-      { error: "Failed to fetch orders", details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: "Failed to fetch orders",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
       { status: 500 }
     );
   }

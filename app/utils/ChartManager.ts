@@ -1,16 +1,33 @@
-// app/utils/ChartManager.ts
-import { createChart, IChartApi, ISeriesApi, CandlestickSeriesPartialOptions, UTCTimestamp, TimeScaleOptions, Time } from "lightweight-charts";
-import { ProcessedKlineData } from "../components/TradeView"; // Correct import path
+// src/app/utils/ChartManager.ts
+
+import {
+  createChart,
+  IChartApi,
+  ISeriesApi,
+  TimeScaleOptions,
+  ChartOptions,
+  DeepPartial,
+  UTCTimestamp,
+} from "lightweight-charts";
+import { ProcessedKlineData } from "../components/TradeView"; // Adjust if your import path differs
+
+// Extend IChartApi to allow storing the resize observer
+interface ExtendedChartApi extends IChartApi {
+  _resizeObserver?: ResizeObserver;
+}
 
 export class ChartManager {
-  chart: IChartApi;
+  chart: ExtendedChartApi;
   candlestickSeries: ISeriesApi<"Candlestick">;
   chartContainer: HTMLElement;
 
   constructor(
     container: HTMLElement,
     initialData: ProcessedKlineData[],
-    options?: { layout?: any; timeScale?: TimeScaleOptions }
+    options?: {
+      layout?: DeepPartial<ChartOptions["layout"]>;
+      timeScale?: TimeScaleOptions;
+    }
   ) {
     this.chartContainer = container;
     this.chart = createChart(container, {
@@ -20,10 +37,7 @@ export class ChartManager {
       timeScale: {
         timeVisible: true,
         secondsVisible: true,
-        // You might want to adjust these further based on your preference
-        // rightOffset: 5, // Keep a small gap on the right
-        // barSpacing: 6, // Adjust bar spacing
-        ...options?.timeScale, // Merge any provided timeScale options
+        ...options?.timeScale,
       },
       grid: {
         vertLines: { color: "#2b2b43" },
@@ -32,12 +46,11 @@ export class ChartManager {
       crosshair: {
         mode: 0, // CrosshairMode.Normal
       },
-      // ... other chart options
-    });
+    }) as ExtendedChartApi;
 
     this.candlestickSeries = this.chart.addCandlestickSeries({
-      upColor: "#4CAF50", // Green
-      downColor: "#F44336", // Red
+      upColor: "#4CAF50",
+      downColor: "#F44336",
       borderVisible: false,
       wickUpColor: "#4CAF50",
       wickDownColor: "#F44336",
@@ -45,23 +58,26 @@ export class ChartManager {
 
     this.candlestickSeries.setData(initialData);
 
-    // Resize observer for responsiveness
-    const resizeObserver = new ResizeObserver(entries => {
-      if (entries.length === 0 || entries[0].contentRect.width === 0) {
-        return;
-      }
+    const resizeObserver = new ResizeObserver((entries) => {
+      if (entries.length === 0 || entries[0].contentRect.width === 0) return;
       this.chart.applyOptions({
         width: entries[0].contentRect.width,
         height: entries[0].contentRect.height,
       });
     });
-    resizeObserver.observe(container);
 
-    // Store the observer to disconnect later
-    (this.chart as any)._resizeObserver = resizeObserver;
+    resizeObserver.observe(container);
+    this.chart._resizeObserver = resizeObserver;
   }
 
-  update(kline: { open: number; high: number; low: number; close: number; time: UTCTimestamp; newCandleInitiated: boolean }) {
+  update(kline: {
+    open: number;
+    high: number;
+    low: number;
+    close: number;
+    time: UTCTimestamp;
+    newCandleInitiated: boolean;
+  }) {
     this.candlestickSeries.update({
       time: kline.time,
       open: kline.open,
@@ -72,13 +88,11 @@ export class ChartManager {
   }
 
   setHistoricalData(data: ProcessedKlineData[]) {
-      this.candlestickSeries.setData(data);
+    this.candlestickSeries.setData(data);
   }
 
   destroy() {
-    if ((this.chart as any)._resizeObserver) {
-      (this.chart as any)._resizeObserver.disconnect();
-    }
+    this.chart._resizeObserver?.disconnect();
     this.chart.remove();
     console.log("Chart destroyed.");
   }

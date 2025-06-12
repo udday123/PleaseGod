@@ -61,7 +61,7 @@ export default function MarketCapList() {
         ws.close(1000, 'Component unmounted');
       }
     };
-  }, []);
+  },[]);
 
   return (
     <div className=" text-white min-h-screen flex flex-col justify-between">

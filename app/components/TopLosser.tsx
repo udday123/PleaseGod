@@ -4,7 +4,6 @@ import { getTickers } from '../utils/httpClient'
 import { Ticker } from '../utils/types';
 
 export default function TopLooser() {
-    const Gainers=[{"Market":"BTC","price":12.54,"P&L":"-3.2%"}]
     const [data, setData] = useState<Ticker[] | null>([]);
     
 useEffect(() => {

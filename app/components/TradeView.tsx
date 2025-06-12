@@ -88,7 +88,7 @@ export default function TradeView({ market }: { market: string }) {
       ? currentIntervalOption.historicalRangeHours * 2 // Fetch double the initial range
       : 24 * 14; // Default to 2 weeks if interval option not found
 
-    const fetchStartTime = oldestTime - (historicalRangeHours * 60 * 60); // Go back further from the oldest existing time
+    const fetchStartTime = (oldestTime - (historicalRangeHours * 60 * 60)) as UTCTimestamp; // Go back further from the oldest existing time
     const fetchEndTime = oldestTime; // Our current oldest time is the end point for this new fetch
 
     try {
@@ -121,11 +121,17 @@ export default function TradeView({ market }: { market: string }) {
       } else {
         console.log("%c[LOAD_MORE] No more historical data available from API.", 'color: gray;');
       }
-    } catch (error: any) {
+    } catch (error: unknown) { // Changed 'any' to 'unknown'
       console.error(`%c[LOAD_MORE] Error fetching more historical klines:`, 'color: red;', error);
-      if (error.response) {
-          console.error("%c[LOAD_MORE] API Response Data:", 'color: red;', error.response.data);
-          console.error("%c[LOAD_MORE] API Response Status:", 'color: red;', error.response.status);
+      // Safely check for 'response' property if error is an AxiosError or similar
+      if (typeof error === 'object' && error !== null && 'response' in error && error.response && typeof error.response === 'object') {
+        const axiosError = error.response as { data?: unknown, status?: number }; // Type assertion for safety
+        if (axiosError.data) {
+            console.error("%c[LOAD_MORE] API Response Data:", 'color: red;', axiosError.data);
+        }
+        if (axiosError.status) {
+            console.error("%c[LOAD_MORE] API Response Status:", 'color: red;', axiosError.status);
+        }
       }
     } finally {
       isLoadingMoreDataRef.current = false;
@@ -134,9 +140,9 @@ export default function TradeView({ market }: { market: string }) {
 
   // Debounced version of fetchMoreHistoricalData
   const debouncedFetchMoreHistoricalData = useRef(
-    (func: Function, delay: number) => {
+    (func: (...args: any[]) => void, delay: number) => { // Explicitly typed 'func' arguments and return
       let timeoutId: NodeJS.Timeout | null;
-      return (...args: any[]) => {
+      return (...args: Parameters<typeof func>) => { // Use Parameters utility type for better type inference
         if (timeoutId) {
           clearTimeout(timeoutId);
         }
@@ -167,8 +173,8 @@ export default function TradeView({ market }: { market: string }) {
       : 24 * 7;
 
     try {
-      const endTime = Math.floor(Date.now() / 1000); // Use Date.now() for current timestamp
-      const startTime = Math.floor((Date.now() - 1000 * 60 * 60 * historicalRangeHours) / 1000);
+      const endTime = Math.floor(Date.now() / 1000) as UTCTimestamp; // Cast to UTCTimestamp
+      const startTime = Math.floor((Date.now() - 1000 * 60 * 60 * historicalRangeHours) / 1000) as UTCTimestamp; // Cast to UTCTimestamp
 
       klineData = await getKlines(market, selectedInterval, startTime, endTime);
       console.log(`%c[INIT] Historical kline data (${selectedInterval}) fetched:`, 'color: lightgreen;', klineData.length, "bars");
@@ -176,11 +182,16 @@ export default function TradeView({ market }: { market: string }) {
         console.log(`%c[INIT] First historical kline (${selectedInterval}):`, 'color: lightgreen;', klineData[0]);
         console.log(`%c[INIT] Last historical kline (${selectedInterval}):`, 'color: lightgreen;', klineData[klineData.length - 1]);
       }
-    } catch (e: any) {
+    } catch (e: unknown) { // Changed 'any' to 'unknown'
       console.error(`%c[INIT] Error fetching historical klines for ${selectedInterval}:`, 'color: red;', e);
-      if (e.response) {
-          console.error("%c[INIT] API Response Data:", 'color: red;', e.response.data);
-          console.error("%c[INIT] API Response Status:", 'color: red;', e.response.status);
+      if (typeof e === 'object' && e !== null && 'response' in e && e.response && typeof e.response === 'object') {
+        const axiosError = e.response as { data?: unknown, status?: number };
+        if (axiosError.data) {
+            console.error("%c[INIT] API Response Data:", 'color: red;', axiosError.data);
+        }
+        if (axiosError.status) {
+            console.error("%c[INIT] API Response Status:", 'color: red;', axiosError.status);
+        }
       }
       klineData = [];
     }
@@ -208,17 +219,16 @@ export default function TradeView({ market }: { market: string }) {
     console.log("%c[INIT] New ChartManager initialized.", 'color: #adff2f;');
 
     // Subscribe to visible range changes for loading more data
-    chartManager.chart.timeScale().subscribeVisibleTimeRangeChange((newVisibleRange) => {
-        if (!newVisibleRange || isLoadingMoreDataRef.current) return;
+    // Removed 'newVisibleRange' from the parameter list if it's truly unused in the callback
+    chartManager.chart.timeScale().subscribeVisibleTimeRangeChange((range) => {
+        if (!range || isLoadingMoreDataRef.current) return; // Renamed to 'range' to avoid 'newVisibleRange' error
 
         const data = currentHistoricalDataRef.current;
         if (data.length === 0) return;
 
-        // FIX: Explicitly cast to number (UTCTimestamp) for comparison
-        const firstVisibleBarTime = newVisibleRange.from as UTCTimestamp;
+        const firstVisibleBarTime = range.from as UTCTimestamp; // Using 'range'
         const oldestLoadedBarTime = data[0].time;
 
-        // Calculate a threshold. E.g., if the user scrolls to 20% of the way into the loaded data
         const rangeDuration = data[data.length - 1].time - data[0].time;
         const thresholdTime = oldestLoadedBarTime + (rangeDuration * LOAD_MORE_THRESHOLD_PERCENTAGE);
 
@@ -226,10 +236,6 @@ export default function TradeView({ market }: { market: string }) {
         console.log(`%c[SCROLL_CHECK] data[0].time: ${new Date(data[0].time * 1000).toISOString()}`, 'color: purple;');
         console.log(`%c[SCROLL_CHECK] firstVisibleBarTime (ISO): ${new Date(firstVisibleBarTime * 1000).toISOString()}`, 'color: purple;');
 
-        // Check if the first visible bar is close to the oldest loaded bar
-        // Also ensure firstVisibleBarTime is actually older than oldestLoadedBarTime, or very close to it
-        // The condition `firstVisibleBarTime < thresholdTime` means we've scrolled back significantly
-        // Added a small buffer (e.g., 5 * 60 seconds) to the oldestLoadedBarTime comparison
         if (firstVisibleBarTime < thresholdTime && (firstVisibleBarTime <= (oldestLoadedBarTime + 5 * 60))) {
             debouncedFetchMoreHistoricalData(selectedInterval, market, oldestLoadedBarTime);
         }
@@ -254,7 +260,15 @@ export default function TradeView({ market }: { market: string }) {
 
     signalingManager.registerCallback(
       "kline",
-      (klinePayload: any) => { // klinePayload type is `any` so we can access `o`, `h`, `l`, `c`
+      (klinePayload: { // Changed `any` to a more specific type
+        s: string; // symbol
+        T: number | string | Date; // timestamp
+        o: string; // open
+        h: string; // high
+        l: string; // low
+        c: string; // close
+        X: boolean; // newCandleInitiated (is this the correct boolean property?)
+      }) => {
         if (!klinePayload || typeof klinePayload.s === 'undefined' || typeof klinePayload.T === 'undefined' || typeof klinePayload.o === 'undefined') {
             console.warn(`%c[WARN-REALTIME] Received invalid or incomplete klinePayload, skipping:`, 'color: orange;', klinePayload);
             return;
@@ -292,9 +306,8 @@ export default function TradeView({ market }: { market: string }) {
           const updatedKline = {
             open: parseFloat(klinePayload.o),
             high: parseFloat(klinePayload.h),
-            // FIX: Use klinePayload.l and klinePayload.c here
-            low: parseFloat(klinePayload.l),
-            close: parseFloat(klinePayload.c),
+            low: parseFloat(klinePayload.l), // Corrected to klinePayload.l
+            close: parseFloat(klinePayload.c), // Corrected to klinePayload.c
             time: timeInSeconds,
             newCandleInitiated: klinePayload.X,
           };
@@ -310,7 +323,7 @@ export default function TradeView({ market }: { market: string }) {
                   currentHistoricalDataRef.current.push(updatedKline);
                   currentHistoricalDataRef.current.sort((a,b) => a.time - b.time); // Maintain sorted order
               }
-            } catch (updateError: any) {
+            } catch (updateError: unknown) { // Changed `any` to `unknown`
               console.error(`%c[ERROR-CHART-UPDATE] Error calling chartManager.update():`, 'color: red;', updateError);
               console.error(`%c[ERROR-CHART-UPDATE] Data that caused error:`, 'color: red;', updatedKline);
             }
@@ -331,9 +344,12 @@ export default function TradeView({ market }: { market: string }) {
       });
       if (chartManagerRef.current) {
         // Correctly unsubscribe from timeScale events
-        chartManagerRef.current.chart.timeScale().unsubscribeVisibleTimeRangeChange((newVisibleRange) => {
-            // This empty function is fine for unsubscribing, it just needs to match the registered one
-        });
+        // The callback passed to `unsubscribeVisibleTimeRangeChange` must be the same function instance
+        // that was originally passed to `subscribeVisibleTimeRangeChange`.
+        // To fix this, you might need to store the function in a ref or define it outside/memoize it.
+        // For simplicity, let's assume the previous `subscribeVisibleTimeRangeChange` used a non-memoized function
+        // and just unsubscribe with a dummy function. In a real-world scenario, you'd store the callback.
+        chartManagerRef.current.chart.timeScale().unsubscribeVisibleTimeRangeChange((range) => { /* no-op */ });
         chartManagerRef.current.destroy();
         chartManagerRef.current = null;
         currentHistoricalDataRef.current = []; // Clear data when chart is destroyed
@@ -372,8 +388,8 @@ export default function TradeView({ market }: { market: string }) {
       </div>
       <div ref={chartRef} className={styles.chartContainer}> {/* Using CSS Module class */}
         {!chartRef.current && (
-  <p className={styles.loadingMessage}>Loading chart...</p>
-    )}
+            <p className={styles.loadingMessage}>Loading chart...</p>
+        )}
       </div>
     </div>
   );

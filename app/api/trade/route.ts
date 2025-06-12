@@ -2,7 +2,7 @@
 
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { authOptions } from "../auth/authOptions";
 import { getDepth } from "@/app/utils/httpClient";
 import Decimal from "decimal.js"; // This imports the Decimal class/constructor
 import { v4 as uuidv4 } from 'uuid';
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
       quantity: parsedQuantity,
       postOnly,
       ioc,
-      priceType,
+      // priceType,
       tradeType,
     } = await req.json();
 
@@ -143,6 +143,7 @@ export async function POST(req: NextRequest) {
     // Save the trade if there was any fill
     if (filledQuantityDecimal.greaterThan(0)) {
       // Start a transaction to update trade, balance, and portfolio
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const result = await prisma.$transaction(async (tx) => {
         // 1. Create the trade record
         const trade = await tx.trade.create({

@@ -1,6 +1,6 @@
 export default function AskTable({ asks }: { asks: [string, string][] }) {
   // Clone asks and prepare running cumulative quantity
-  let sortedAsks = [...asks];
+  const sortedAsks = [...asks];
   let runningQuantity = 0;
 
   // Convert to number and calculate cumulative quantities

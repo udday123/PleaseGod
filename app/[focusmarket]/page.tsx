@@ -1,5 +1,5 @@
 'use client';
-import dynamic from "next/dynamic";
+// import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
 import MarketBar from "../components/MarketBar";
 import OrderBook from "../components/Orderbook";
@@ -8,16 +8,16 @@ import { useState, useEffect } from "react";
 import TradeView from "../components/TradeView";
 import { HistorySection } from "../components/HistorySection";
 
-const AdvancedRealTimeChart = dynamic(
-  () => import("react-ts-tradingview-widgets").then((mod) => mod.AdvancedRealTimeChart),
-  { ssr: false }
-);
+// const AdvancedRealTimeChart = dynamic(
+//   () => import("react-ts-tradingview-widgets").then((mod) => mod.AdvancedRealTimeChart),
+//   { ssr: false }
+// );
 
 export default function Mainpage() {
   const params = useParams();
   const focusmarket = params?.focusmarket?.toString();
 
-  const [BookOrTrade, setBookTrade]=("Book")
+  // const [BookOrTrade, setBookTrade]=("Book")
 
   const [windowWidth, setWindowWidth] = useState(
     typeof window !== "undefined" ? window.innerWidth : 1200

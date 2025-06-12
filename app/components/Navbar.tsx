@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import router from "next/router";
+
 
 // Define navigation items for better maintainability
 

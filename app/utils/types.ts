@@ -8,8 +8,6 @@ export interface Detail {
 }
 
 export interface KLine {
-  l(l: any): number;
-  c(c: any): number;
   close: string;
   end: string;
   high: string;
@@ -20,6 +18,7 @@ export interface KLine {
   trades: string;
   volume: string;
 }
+
 
 export interface Trade {
   "id": number,

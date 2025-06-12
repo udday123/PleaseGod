@@ -26,41 +26,41 @@ export const Slider = () => {
   ];
 
   const texts = [
-    <div>
+    <div key="text-0"> {/* Added key */}
       <div className="text-4xl pr-148 sm:text-5xl md:text-6xl font-extrabold text-cyan-50 text-center px-4 drop-shadow-lg">
-        We Don't Watch the Market… 
+        We Don&apos;t Watch the Market… {/* Escaped apostrophe */}
       </div>
       <div className="pr-149 text-3xl">
         We Haunt It.
       </div>
     </div>,
-    <div>
+    <div key="text-1"> {/* Added key */}
       <div className="text-4xl pr-138 sm:text-5xl md:text-6xl font-extrabold text-cyan-50 text-center px-4 drop-shadow-lg">
-        Be the Market's Final Boss
+        Be the Market&apos;s Final Boss {/* Escaped apostrophe */}
       </div>
       <div className="pr-128 text-3xl">
         Crush volatility. Dominate every candle.
       </div>
     </div>,
-    <div>
+    <div key="text-2"> {/* Added key */}
       <div
         className="text-4xl pr-148 sm:text-5xl md:text-6xl font-extrabold text-center px-4 drop-shadow-lg bg-clip-text text-transparent"
         style={{
           backgroundImage: "linear-gradient(145deg, black 26.9%, white 30%)"
         }}
       >
-        The Smile Isn't Mine...
+        The Smile Isn&apos;t Mine... {/* Escaped apostrophe */}
         <div 
           className="bg-gradient-to-r text-transparent bg-clip-text text-2xl"
           style={{
             backgroundImage: "linear-gradient(155deg, black 26.6%, white 30%)"
           }}
         >
-          It's the last thing the market sees before I break it.
+          It&apos;s the last thing the market sees before I break it. {/* Escaped apostrophe */}
         </div>
       </div>
     </div>,
-    <div>
+    <div key="text-3"> {/* Added key */}
       <div className="text-4xl pr-198 sm:text-5xl md:text-6xl font-extrabold text-cyan-50 text-center px-4 drop-shadow-lg">
         Your Crypto, Your Rules
       </div>

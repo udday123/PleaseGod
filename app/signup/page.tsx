@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { FaEye, FaEyeSlash, FaSpinner } from 'react-icons/fa';
 import { useRouter } from "next/navigation"; 
+import Link from "next/link";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
@@ -198,7 +199,7 @@ export default function SignupPage() {
           </button>
 
           <p className="text-center text-sm text-gray-600 mt-4">
-            Already have an account? <a href="/login" className="text-blue-600 hover:underline font-medium">Log In</a>
+            Already have an account? <Link href="/login" className="text-blue-600 hover:underline font-medium">Log In</Link>
           </p>
         </form>
       </div>

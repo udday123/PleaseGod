@@ -1,6 +1,7 @@
 // src/app/signin/page.tsx
-"use client";
 
+"use client";
+import Link from "next/link";
 import { useState } from "react";
 import { signIn } from "next-auth/react"; // Provides the client-side signIn function
 import { useRouter } from "next/navigation"; // For client-side navigation
@@ -125,11 +126,15 @@ export default function Signin() {
           </button>
 
           <p className="text-center text-sm text-gray-600 mt-4">
-            Don't have an account? <a href="/signup" className="text-green-600 hover:underline font-medium">Sign Up</a>
+            Don&apos;t have an account?  <Link href="/signup" className="text-green-600 hover:underline font-medium">
+    Sign Up
+  </Link>
           </p>
           <p className="text-center text-sm text-gray-600">
-            <a href="/forgot-password" className="text-gray-500 hover:underline text-sm">Forgot Password?</a>
-          </p>
+            <Link href="/forgot-password" className="text-gray-500 hover:underline text-sm">
+    Forgot Password?
+  </Link>
+  </p>
         </form>
       </div>
     </div>
