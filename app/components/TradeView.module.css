@@ -1,0 +1,74 @@
+/* app/components/TradeView.module.css */
+
+.tradeViewContainer {
+  padding: 10px;
+}
+
+.intervalButtonsGroup {
+  margin-bottom: 10px;
+  display: flex;
+  gap: 1px; /* Reduce gap to make them look more like a segment */
+  flex-wrap: wrap;
+  border: 1px solid #444; /* Subtle border around the group */
+  border-radius: 4px;
+  overflow: hidden; /* Ensures inner buttons don't break the border radius */
+  background-color: #222; /* A dark background for the button group */
+}
+
+.intervalButton {
+  padding: 8px 12px;
+  cursor: pointer;
+  background-color: #2d2d2d; /* Darker gray when inactive */
+  color: #bbb; /* Lighter text for inactive */
+  border: none; /* No individual button borders for a segment look */
+  border-radius: 0px; /* No individual button border radius */
+  font-weight: normal;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, color 0.2s ease; /* Smooth transition */
+  flex-grow: 1; /* Make buttons expand to fill space */
+  /* Remove line-height to let padding control height */
+  line-height: 1;
+}
+
+.intervalButton:hover {
+  background-color: #3a3a3a; /* Slightly lighter gray on hover */
+  color: white;
+}
+
+.intervalButton.active {
+  background-color: #007bff; /* Blue when active */
+  color: white;
+  font-weight: bold;
+}
+
+.intervalButton.active:hover {
+  background-color: #0060cc; /* Slightly darker blue on hover for active state */
+}
+
+.chartContainer {
+  height: 520px;
+  width: 100%;
+  margin-top: 2px;
+  background: #1a1a1a;
+  position: relative;
+  cursor: crosshair;
+}
+
+.loadingMessage {
+  color: white;
+  text-align: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* globals.css */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;    /* Firefox */
+}

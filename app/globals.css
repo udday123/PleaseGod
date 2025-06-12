@@ -1,0 +1,35 @@
+@import "tailwindcss";
+@layer utilities {
+    .animate-spin-slow {
+      animation: spin 22s linear infinite;
+    }
+}
+/* Hide scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;    /* Firefox */
+}
+.scroll-snap {
+  scroll-snap-type: y mandatory;
+}
+.scroll-item {
+  scroll-snap-align: start;
+}
+@keyframes borderShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-border-thin {
+  background: linear-gradient(270deg, #f59e0b, #06b6d4, #a855f7, #f59e0b);
+  background-size: 400% 400%;
+  animation: borderShift 5s linear infinite;
+}
+@import 'sweetalert2/dist/sweetalert2.min.css';
