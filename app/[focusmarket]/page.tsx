@@ -101,7 +101,12 @@ export default function Mainpage() {
           </div>
         )}
       </div>
-      <HistorySection/>
+      <div className="w-full overflow-x-auto px-1">
+        <div className="max-w-full">
+          <HistorySection />
+        </div>
+      </div>
+
     </div>
   );
 }

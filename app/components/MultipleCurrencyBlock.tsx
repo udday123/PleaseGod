@@ -77,48 +77,49 @@ export default function MarketCapList() {
           </div>
 
           {data.map((x) => (
-            <div
-              key={x.symbol}
-              className="grid grid-cols-1 sm:grid-cols-4 gap-4 sm:gap-6 px-12 py-4 border-b border-gray-800 bg-[] text-white items-center"
-            >
-              {/* Market */}
-              <div className="justify-self-start">
-                <Link href={`./${backpackString(x.symbol)}`}>
-                  <p className="text-lg font-bold text-white">
-                    {x.symbol.replace('USDT', '')}
-                  </p>
-                  <p className="text-sm text-gray-400">
-                    {x.symbol.replace('USDT', '')}/USD
-                  </p>
-                </Link>
-              </div>
+  <Link href={`./${backpackString(x.symbol)}`} key={x.symbol}>
+    <div
+      className="grid grid-cols-1 sm:grid-cols-4 gap-4 sm:gap-6 px-12 py-4 border-b border-gray-800 text-white items-center"
+    >
+      {/* Market */}
+      <div className="justify-self-start">
+        <p className="text-lg font-bold text-white">
+          {x.symbol.replace('USDT', '')}
+        </p>
+        <p className="text-sm text-gray-400">
+          {x.symbol.replace('USDT', '')}/USD
+        </p>
+      </div>
 
-              {/* Price */}
-              <p className="text-xl font-bold text-white text-start sm:text-center">
-                ${x.currentPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-              </p>
+      {/* Price */}
+      <p className="text-xl font-bold text-white text-start sm:text-center">
+        ${x.currentPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+      </p>
 
-              {/* High / Low */}
-              <div className="text-start sm:text-center flex flex-col items-start sm:items-center">
-                <p className="text-green-500 text-sm font-semibold">
-                  High: ${x.maxhigh?.toFixed(2)}
-                </p>
-                <div className='h-2'></div>
-                <p className="text-red-500 text-sm font-semibold">
-                  Low: ${x.maxlow?.toFixed(2)}
-                </p>
-              </div>
+      {/* High / Low */}
+      <div className="text-start sm:text-center flex flex-col items-start sm:items-center">
+        <p className="text-green-500 text-sm font-semibold">
+          High: ${x.maxhigh?.toFixed(2)}
+        </p>
+        <div className='h-2'></div>
+        <p className="text-red-500 text-sm font-semibold">
+          Low: ${x.maxlow?.toFixed(2)}
+        </p>
+      </div>
 
-              {/* Change */}
-              <p
-                className={`text-lg font-bold text-start sm:text-end ${
-                  x.percentagechange >= 0 ? 'text-green-500' : 'text-red-500'
-                }`}
-              >
-                {x.percentagechange.toFixed(2)}%
-              </p>
-            </div>
-          ))}
+      {/* Change */}
+      <p
+        className={`text-lg font-bold text-start sm:text-end ${
+          x.percentagechange >= 0 ? 'text-green-500' : 'text-red-500'
+        }`}
+      >
+        {x.percentagechange.toFixed(2)}%
+      </p>
+    </div>
+  </Link>
+))}
+
+
         </div>
       
     </div>

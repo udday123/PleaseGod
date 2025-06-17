@@ -1,5 +1,6 @@
 "use client"
 import { useState } from "react";
+
 import MarketCapList from "./components/MultipleCurrencyBlock";
 import Popular from "./components/Popular";
 import { Slider } from "./components/Slider";
@@ -22,52 +23,52 @@ export default function Page() {
       />
 
       {/* Slider section */}
-      <div className="w-full max-w-7xl mx-auto mb-16 justify-center justify-items-center">
+      <div className=" hidden lg:block  w-full max-w-7xl mx-auto mb-16 justify-center justify-items-center">
         <Slider />
       </div>
 
       {/* Gainers / Loosers section */}
-      <div className="w-332 mx-auto grid grid-cols-3">
+      <div className="w-full max-w-screen-xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         <TopGainers />
         <TopLooser />
         <Popular/>
       </div>
-      <div className="">
-        <div className="h-6"></div>
-        <div>
-          <div className="ml-6 grid grid-cols-2 w-34 h-6 text-white">
-            <button 
-              onClick={() => setActiveView('spot')}
-              className={`bg-transparent rounded-tl-lg hover:cursor-pointer shadow-[-3px_-2px_10px_rgba(255,255,255,0.3)] ${
-                activeView === 'spot' ? 'bg-gray-800' : ''
-              }`}
-            >
-              Spot
-            </button>
-            
-          </div>
-        </div>
-        <div className="relative">
-          <div 
-            className={`absolute w-full transition-all duration-500 ease-in-out ${
-              activeView === 'spot' 
-                ? 'animate-fadeIn z-10' 
-                : 'animate-fadeOut z-0'
-            }`}
-          >
-            <MarketCapList />
-          </div>
-          <div 
-            className={`absolute w-full transition-all duration-500 ease-in-out ${
-              activeView === 'futures' 
-                ? 'animate-fadeIn z-10' 
-                : 'animate-fadeOut z-0'
-            }`}
-          >
-            <FuturesMarket />
-          </div>
-        </div>
+      <div className="w-full px-4 sm:px-6 lg:px-8">
+  <div className="h-6" />
+
+  {/* Tabs */}
+  <div className="grid grid-cols-2 w-fit text-white">
+    
+
+  </div>
+
+  {/* Animated Views */}
+  <div className="relative mt-4">
+    <button 
+      onClick={() => setActiveView('spot')}
+      className={`bg-transparent h-10 text-amber-50 font-extrabold text-lg rounded-tl-lg px-4 ml-4 py-2 shadow-[-3px_-2px_10px_rgba(255,255,255,0.3)] hover:cursor-pointer ${
+        activeView === 'spot' ? 'bg-gray-800' : ''
+      }`}
+    >
+      Spot
+    </button>
+    <div 
+      className={`absolute w-full transition-all duration-500 ease-in-out ${
+        activeView === 'spot' ? 'animate-fadeIn z-10' : 'animate-fadeOut z-0'
+      }`}
+    >
+      <MarketCapList />
+    </div>
+    <div 
+      className={`absolute w-full transition-all duration-500 ease-in-out ${
+        activeView === 'futures' ? 'animate-fadeIn z-10' : 'animate-fadeOut z-0'
+      }`}
+    >
+      <FuturesMarket />
+    </div>
+  </div>
       </div>
+
 
       <style jsx>{`
         @keyframes fadeIn {
