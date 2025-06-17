@@ -64,7 +64,6 @@ export default function Page() {
         activeView === 'futures' ? 'animate-fadeIn z-10' : 'animate-fadeOut z-0'
       }`}
     >
-      <FuturesMarket />
     </div>
   </div>
       </div>

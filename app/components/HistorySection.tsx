@@ -121,19 +121,20 @@ export const HistorySection = () => {
   }
 
   if (!isAuthenticated) {
-    return (
-      <div className='mt-2 p-4 bg-[#202127] h-100 ml-3 w-306 rounded-lg text-white text-center'>
-        <h3 className='text-lg font-semibold mb-2'>Access Denied</h3>
-        <p className='text-stone-400'>Please sign in to view your order history.</p>
-        <button
-          onClick={() => signIn()}
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Sign In
-        </button>
-      </div>
-    );
-  }
+  return (
+    <div className="mt-2 p-4 bg-[#202127] rounded-lg text-white text-center w-full max-w-md mx-auto">
+      <h3 className="text-lg font-semibold mb-2">Access Denied</h3>
+      <p className="text-stone-400">Please sign in to view your order history.</p>
+      <button
+        onClick={() => signIn()}
+        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+      >
+        Sign In
+      </button>
+    </div>
+  );
+}
+
 
   return (
     <div className='mt-2'>
